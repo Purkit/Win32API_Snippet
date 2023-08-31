@@ -24,6 +24,7 @@ LRESULT CALLBACK handle_event(HWND handle, UINT msg, WPARAM wParam, LPARAM lPara
         case WM_CLOSE:
         {
             // TODO : Push window close event to Application Event Queue.
+            PostQuitMessage(0);
             break;
         }
 
@@ -137,15 +138,21 @@ void Window::Clear()
 
 }
 
+bool Window::ShouldClose()
+{
+    return m_ShouldClose;
+}
+
 void Window::Close()
 {
     m_ShouldClose = true;
+    PostQuitMessage(0);
     DestroyWindow(m_windowHandle);
 }
 
 void Window::PumpEvent()
 {    
-    while( PeekMessageA(&m_message_queue, nullptr, 0, 0, PM_REMOVE) )
+    while( PeekMessageA(&m_message_queue, nullptr, 0, 0, PM_REMOVE) > 0 )
     {
         TranslateMessage(&m_message_queue);
         DispatchMessage(&m_message_queue);
@@ -156,4 +163,9 @@ void Window::WaitForEvent()
 {
     // Unclear how to implement
     // GetMessageA(&m_message_queue, m_windowHandle, 0, 0);
+}
+
+std::unique_ptr<Window> Window::Create(unsigned int width, unsigned int height, const std::string& title)
+{
+    return std::make_unique<Window>(width, height, title);
 }

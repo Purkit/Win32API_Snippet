@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <Windows.h>
+#include <memory>
 
 class Window
 {
@@ -36,6 +37,8 @@ class Window
         unsigned int GetWidth();
         unsigned int GetHeight();
         void GetLocation(unsigned int& x, unsigned int& y);
+
+        static std::unique_ptr<Window> Create(unsigned int width, unsigned int height, const std::string& title);
     
     private:
         const unsigned int m_width;

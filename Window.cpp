@@ -169,3 +169,24 @@ std::unique_ptr<Window> Window::Create(unsigned int width, unsigned int height, 
 {
     return std::make_unique<Window>(width, height, title);
 }
+
+void Window::Toggle_Borderless_Mode()
+{
+    DWORD dwStyle = GetWindowLong(m_windowHandle, GWL_STYLE);
+
+    if (dwStyle & WS_BORDER) // * If the window is bordered
+    {
+        SetWindowLong(m_windowHandle, GWL_STYLE, dwStyle & ~WS_BORDER);
+        SetWindowPos(m_windowHandle, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
+    else // * If the window is borderless
+    {
+        SetWindowLong(m_windowHandle, GWL_STYLE, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SYSMENU);
+        SetWindowPos(m_windowHandle, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
+}
+
+void Window::Toggle_FullScreenMode()
+{
+
+}

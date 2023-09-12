@@ -172,21 +172,60 @@ std::unique_ptr<Window> Window::Create(unsigned int width, unsigned int height, 
 
 void Window::Toggle_Borderless_Mode()
 {
-    DWORD dwStyle = GetWindowLong(m_windowHandle, GWL_STYLE);
+    DWORD currentWindowStyle = GetWindowLong(m_windowHandle, GWL_STYLE);
 
-    if (dwStyle & WS_BORDER) // * If the window is bordered
+    if (currentWindowStyle & WS_BORDER) // * If the window is bordered
     {
-        SetWindowLong(m_windowHandle, GWL_STYLE, dwStyle & ~WS_BORDER);
-        SetWindowPos(m_windowHandle, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+        SetWindowLong(m_windowHandle, GWL_STYLE, currentWindowStyle & ~WS_BORDER);
+        SetWindowPos(m_windowHandle, nullptr, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
     else // * If the window is borderless
     {
         SetWindowLong(m_windowHandle, GWL_STYLE, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SYSMENU);
-        SetWindowPos(m_windowHandle, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+        SetWindowPos(m_windowHandle, nullptr, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
 }
 
 void Window::Toggle_FullScreenMode()
 {
+    DWORD currentWindowStyle = GetWindowLong(m_windowHandle, GWL_STYLE);
+    DWORD normalWindowStyle;
+    RECT previousWindowSize;
+    
+    GetWindowRect(m_windowHandle, &previousWindowSize);
+
+    if (currentWindowStyle & WS_OVERLAPPEDWINDOW) // * If window is in normal mode
+    {
+        // Switch to fullscreen mode
+        normalWindowStyle = currentWindowStyle;
+        SetWindowLong(m_windowHandle, GWL_STYLE, currentWindowStyle & ~WS_OVERLAPPEDWINDOW);
+        SetWindowPos(
+            m_windowHandle,
+            nullptr,
+            0,
+            0,
+            GetSystemMetrics(SM_CXSCREEN),
+            GetSystemMetrics(SM_CYSCREEN),
+            SWP_FRAMECHANGED
+        );
+
+        SetCapture(m_windowHandle);
+    }
+    else // * If window is in fullscreen mode
+    {
+        // Switch back to windowed mode
+        SetWindowLong(m_windowHandle, GWL_STYLE, normalWindowStyle);
+        SetWindowPos(
+            m_windowHandle,
+            nullptr,
+            previousWindowSize.left,
+            previousWindowSize.top,
+            previousWindowSize.right - previousWindowSize.left,
+            previousWindowSize.bottom - previousWindowSize.top,
+            SWP_FRAMECHANGED
+        );
+
+        ReleaseCapture();
+    }
 
 }

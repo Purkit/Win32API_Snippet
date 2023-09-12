@@ -22,7 +22,7 @@ void Application::Run()
     while ( !m_Window->ShouldClose() )
     {
         m_Window->PumpEvent();
-        std::cout << "Running !!";
-        
+        std::cout << "Running !!";  
+
     }
 }
